@@ -1,0 +1,74 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+
+decathalon_clean <- read_csv(here("clean_data/decathalon_clean.csv"))
+```
+
+Q1: 
+Who had the longest long jump seen in the data?
+
+```{r}
+decathalon_clean %>% 
+  filter(event == "long_jump") %>% 
+  arrange(-score) %>% 
+  head(1)
+```
+Q2:
+
+What was the average 100m time in each competition?
+
+```{r}
+decathalon_clean %>% 
+  filter(event == "100m") %>% 
+  group_by(competition) %>% 
+  summarise(average = mean(score))
+```
+
+Q3:Who had the highest total points across both competitions?
+
+```{r}
+decastar_points <- decathalon_clean %>% 
+  filter(competition == "Decastar") %>% 
+  select(competitor, points) %>% 
+  distinct(competitor, points)
+
+olympic_points <- decathalon_clean %>% 
+  filter(competition == "OlympicG") %>% 
+  select(competitor, points) %>% 
+  distinct(competitor, points)
+
+#highest points must have competed at both events
+#so inner join will have only those 
+#can add 2 points to get a total over the 2 events
+  
+decastar_points %>% 
+  inner_join(x = decastar_points, y = olympic_points, by = "competitor") %>% 
+  mutate(total_points = points.x + points.y) %>% 
+  head(1)
+```
+
+Q4: What was the shot-put scores for the top three competitors in each competition?
+
+```{r}
+decathalon_clean %>% 
+  filter(rank %in% c(1, 2, 3) & event == "shot_put")
+```
+Q5:
+What was the average points for competitors who ran the 400m in less than 50 seconds vs. those than ran 400m in more than 50 seconds?
+
+```{r}
+fast <- decathalon_clean %>% 
+  filter(event == "400m" & score < 50) %>% 
+  summarise(average_points = mean(points))
+
+slow <- decathalon_clean %>% 
+  filter(event == "400m" & score >= 50) %>% 
+  summarise(average_points = mean(points))
+  
+```
+
