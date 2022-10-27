@@ -1,0 +1,168 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+candy_clean <- read_csv(here::here("clean_data/clean_data.csv"))
+```
+
+Q1:
+
+What is the total number of candy ratings given across the three years.
+(Number of candy ratings, not the number of raters. Don’t count missing values)
+
+```{r}
+candy_clean %>% 
+  summarise(total_ratings = sum(!is.na(feeling)))
+  
+```
+
+Q2: What was the average age of people who are going out trick or treating?
+
+```{r}
+candy_clean %>% 
+  filter(trick_or_treating == "Yes") %>% 
+  summarise(mean_age = mean(age))
+```
+
+Q3: What was the average age of people who are not going trick or treating?
+
+```{r}
+candy_clean %>% 
+  filter(trick_or_treating == "No") %>% 
+  summarise(mean_age = mean(age))
+```
+
+Q4: For each of joy, despair and meh, which candy bar received the most of these ratings?
+
+```{r}
+candy_clean %>% 
+  filter(feeling == "JOY") %>% 
+  group_by(candy) %>% 
+  summarise(total = n()) %>% 
+  slice_max(total, n = 1)
+
+candy_clean %>% 
+  filter(feeling == "MEH") %>% 
+  group_by(candy) %>% 
+  summarise(total = n()) %>% 
+  slice_max(total, n = 1)
+  
+candy_clean %>% 
+  filter(feeling == "DESPAIR") %>% 
+  group_by(candy) %>% 
+  summarise(total = n()) %>% 
+  slice_max(total, n = 1) %>% 
+  pull()
+
+```
+
+
+Q5:
+How many people rated Starburst as despair?
+
+```{r}
+candy_clean %>% 
+  filter(candy == "starburst") %>% 
+  filter(feeling == "DESPAIR") %>% 
+  summarise(n())
+```
+For the next three questions, count despair as -1, joy as +1, and meh as 0
+
+```{r}
+net_feelies <- candy_clean %>% 
+  mutate(feeling = as.numeric(case_when(feeling == "JOY" ~ 1,
+                             feeling == "DESPAIR" ~ -1,
+                             feeling == "MEH" ~ 0)))
+```
+
+
+Q6:
+What was the most popular candy bar by this rating system for each gender in the dataset ?
+
+```{r}
+net_feelies %>% 
+  filter(gender == "Male") %>% 
+  group_by(candy) %>% 
+  summarise(net_feel = sum(feeling, na.rm = TRUE)) %>% 
+  slice_max(net_feel, n = 1)
+```
+```{r}
+net_feelies %>% 
+  filter(gender == "Female") %>% 
+  group_by(candy) %>% 
+  summarise(net_feel = sum(feeling, na.rm = TRUE)) %>% 
+  slice_max(net_feel, n = 1)
+```
+
+```{r}
+net_feelies %>% 
+  filter(gender == "Other") %>% 
+  group_by(candy) %>% 
+  summarise(net_feel = sum(feeling, na.rm = TRUE)) %>% 
+  slice_max(net_feel, n = 1)
+```
+
+Q7:
+What was the most popular candy bar in each year?
+
+```{r}
+net_feelies %>% 
+  filter(year == 2015) %>% 
+  group_by(candy) %>% 
+  summarise(net_feel = sum(feeling, na.rm = TRUE)) %>% 
+  slice_max(net_feel, n = 1)
+```
+```{r}
+net_feelies %>% 
+  filter(year == 2016) %>% 
+  group_by(candy) %>% 
+  summarise(net_feel = sum(feeling, na.rm = TRUE)) %>% 
+  slice_max(net_feel, n = 1)
+```
+
+```{r}
+net_feelies %>% 
+  filter(year == 2017) %>% 
+  group_by(candy) %>% 
+  summarise(net_feel = sum(feeling, na.rm = TRUE)) %>% 
+  slice_max(net_feel, n = 1)
+```
+
+
+
+Q8:
+What was the most popular candy bar by this rating for people in US, Canada, UK, and all other countries?
+
+```{r}
+net_feelies %>% 
+  filter(country == "us") %>% 
+  group_by(candy) %>% 
+  summarise(net_feel = sum(feeling, na.rm = TRUE)) %>% 
+  slice_max(net_feel, n = 1)
+```
+```{r}
+net_feelies %>% 
+  filter(country == "canada") %>% 
+  group_by(candy) %>% 
+  summarise(net_feel = sum(feeling, na.rm = TRUE)) %>% 
+  slice_max(net_feel, n = 1)
+```
+```{r}
+net_feelies %>% 
+  filter(country == "uk") %>% 
+  group_by(candy) %>% 
+  summarise(net_feel = sum(feeling, na.rm = TRUE)) %>% 
+  slice_max(net_feel, n = 1)
+```
+
+```{r}
+net_feelies %>% 
+  filter(!country %in% c("canada", "us", "uk")) %>% 
+  group_by(candy) %>% 
+  summarise(net_feel = sum(feeling, na.rm = TRUE)) %>% 
+  slice_max(net_feel, n = 1)
+```
+
