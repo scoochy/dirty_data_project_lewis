@@ -195,6 +195,7 @@ candy_new_names <- candy_new_names %>%
 #                     -c(id, age, trick_or_treating, country, gender, internal_id, year), ~ !.x %in% c(NA, "MEH", "JOY", "DESPAIR")))
 
 
+#pivoted longer so each row was 1 observation
 candy_tidy <- candy_new_names %>% 
   pivot_longer(cols = 
                  -c(id, age, trick_or_treating, country, gender, year),

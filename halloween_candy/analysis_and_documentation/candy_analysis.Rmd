@@ -2,11 +2,14 @@
 title: "R Notebook"
 output: html_notebook
 ---
+Read in the data
 
 ```{r}
 library(tidyverse)
 candy_clean <- read_csv(here::here("clean_data/clean_data.csv"))
 ```
+Previously checked the feeling column to only have NA, MEH, JOY or DESPAIR so
+removing NA then performing sum will give total number or ratings.
 
 Q1:
 
@@ -18,6 +21,7 @@ candy_clean %>%
   summarise(total_ratings = sum(!is.na(feeling)))
   
 ```
+Just need to filter for trick or treaters then take the mean of age. 
 
 Q2: What was the average age of people who are going out trick or treating?
 
@@ -27,6 +31,8 @@ candy_clean %>%
   summarise(mean_age = mean(age))
 ```
 
+Same again but not trick or treating.
+
 Q3: What was the average age of people who are not going trick or treating?
 
 ```{r}
@@ -34,6 +40,8 @@ candy_clean %>%
   filter(trick_or_treating == "No") %>% 
   summarise(mean_age = mean(age))
 ```
+Filtered each feeling separately then grouped by candy bar and counted the 
+total of that feeling for each taking the max.
 
 Q4: For each of joy, despair and meh, which candy bar received the most of these ratings?
 
@@ -54,11 +62,11 @@ candy_clean %>%
   filter(feeling == "DESPAIR") %>% 
   group_by(candy) %>% 
   summarise(total = n()) %>% 
-  slice_max(total, n = 1) %>% 
-  pull()
+  slice_max(total, n = 1) 
 
 ```
 
+filter candy as starburst and feeling as despair then counted.
 
 Q5:
 How many people rated Starburst as despair?
@@ -69,6 +77,9 @@ candy_clean %>%
   filter(feeling == "DESPAIR") %>% 
   summarise(n())
 ```
+Decided to mutate the feeling column using a case when to exchange the words
+for their numeric values given.
+
 For the next three questions, count despair as -1, joy as +1, and meh as 0
 
 ```{r}
@@ -78,6 +89,10 @@ net_feelies <- candy_clean %>%
                              feeling == "MEH" ~ 0)))
 ```
 
+
+This numeric system means we can sum over the feeling column to get a 
+"net feel" and for each question filter by a different variable then 
+group by candy to see the most popular.
 
 Q6:
 What was the most popular candy bar by this rating system for each gender in the dataset ?
